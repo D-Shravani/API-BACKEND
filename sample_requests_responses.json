@@ -1,0 +1,752 @@
+{
+  "api_samples": {
+    "base_url": "http://127.0.0.1:5000",
+    "description": "Sample requests and responses for API Backend testing",
+    
+    "1_health_check": {
+      "description": "Check API health status",
+      "request": {
+        "method": "GET",
+        "endpoint": "/health",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "status": "healthy",
+            "timestamp": "2026-02-18T10:30:00.000000",
+            "version": "1.0.0"
+          },
+          "message": "API is running successfully"
+        }
+      }
+    },
+    
+    "2_login_success": {
+      "description": "Successful login with admin user",
+      "request": {
+        "method": "POST",
+        "endpoint": "/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "email": "admin@example.com"
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+            "user": {
+              "id": 1,
+              "name": "Admin User",
+              "email": "admin@example.com",
+              "role": "admin"
+            }
+          },
+          "message": "Login successful"
+        }
+      }
+    },
+    
+    "3_login_missing_email": {
+      "description": "Login attempt without email",
+      "request": {
+        "method": "POST",
+        "endpoint": "/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {}
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "MISSING_FIELD",
+          "message": "Missing required field: email"
+        }
+      }
+    },
+    
+    "4_login_invalid_email": {
+      "description": "Login with invalid email format",
+      "request": {
+        "method": "POST",
+        "endpoint": "/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "email": "not-an-email"
+        }
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "INVALID_EMAIL",
+          "message": "Invalid email format"
+        }
+      }
+    },
+    
+    "5_login_user_not_found": {
+      "description": "Login with non-existent email",
+      "request": {
+        "method": "POST",
+        "endpoint": "/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "email": "notfound@example.com"
+        }
+      },
+      "response": {
+        "status_code": 404,
+        "body": {
+          "status": "error",
+          "error_code": "USER_NOT_FOUND",
+          "message": "User not found with provided email"
+        }
+      }
+    },
+    
+    "6_create_user_success": {
+      "description": "Successfully create a new user",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token_from_login}"
+        },
+        "body": {
+          "name": "Jane Smith",
+          "email": "jane@example.com",
+          "age": 28,
+          "role": "user"
+        }
+      },
+      "response": {
+        "status_code": 201,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 3,
+            "name": "Jane Smith",
+            "email": "jane@example.com",
+            "age": 28,
+            "role": "user",
+            "created_at": "2026-02-18T10:30:00.000000",
+            "updated_at": "2026-02-18T10:30:00.000000"
+          },
+          "message": "User created successfully"
+        }
+      }
+    },
+    
+    "7_create_user_missing_field": {
+      "description": "Create user with missing required field",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Jane Smith",
+          "age": 28
+        }
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "MISSING_FIELD",
+          "message": "Missing required field: email"
+        }
+      }
+    },
+    
+    "8_create_user_short_name": {
+      "description": "Create user with name less than 3 characters",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Jo",
+          "email": "jo@example.com",
+          "age": 25
+        }
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "INVALID_NAME",
+          "message": "Name must be at least 3 characters long"
+        }
+      }
+    },
+    
+    "9_create_user_invalid_email": {
+      "description": "Create user with invalid email format",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Jane Smith",
+          "email": "invalid-email",
+          "age": 28
+        }
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "INVALID_EMAIL",
+          "message": "Invalid email format"
+        }
+      }
+    },
+    
+    "10_create_user_duplicate_email": {
+      "description": "Create user with existing email",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Another Admin",
+          "email": "admin@example.com",
+          "age": 30
+        }
+      },
+      "response": {
+        "status_code": 409,
+        "body": {
+          "status": "error",
+          "error_code": "DUPLICATE_EMAIL",
+          "message": "Email already exists. Please use a different email."
+        }
+      }
+    },
+    
+    "11_create_user_under_age": {
+      "description": "Create user with age less than 18",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Young User",
+          "email": "young@example.com",
+          "age": 17
+        }
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "INVALID_AGE",
+          "message": "Age must be 18 or older"
+        }
+      }
+    },
+    
+    "12_create_user_no_token": {
+      "description": "Create user without authorization token",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "Jane Smith",
+          "email": "jane@example.com",
+          "age": 28
+        }
+      },
+      "response": {
+        "status_code": 401,
+        "body": {
+          "status": "error",
+          "error_code": "MISSING_TOKEN",
+          "message": "Authorization token is missing. Please include a valid token in the request."
+        }
+      }
+    },
+    
+    "13_get_all_users_success": {
+      "description": "Successfully retrieve all users",
+      "request": {
+        "method": "GET",
+        "endpoint": "/users",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "users": [
+              {
+                "id": 1,
+                "name": "Admin User",
+                "email": "admin@example.com",
+                "age": 30,
+                "role": "admin",
+                "created_at": "2026-02-18T10:00:00.000000",
+                "updated_at": "2026-02-18T10:00:00.000000"
+              },
+              {
+                "id": 2,
+                "name": "John Doe",
+                "email": "john@example.com",
+                "age": 25,
+                "role": "user",
+                "created_at": "2026-02-18T10:00:00.000000",
+                "updated_at": "2026-02-18T10:00:00.000000"
+              }
+            ],
+            "count": 2
+          },
+          "message": "Retrieved 2 user(s) successfully"
+        }
+      }
+    },
+    
+    "14_get_users_with_filter": {
+      "description": "Get users filtered by role",
+      "request": {
+        "method": "GET",
+        "endpoint": "/users?role=admin",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "users": [
+              {
+                "id": 1,
+                "name": "Admin User",
+                "email": "admin@example.com",
+                "age": 30,
+                "role": "admin",
+                "created_at": "2026-02-18T10:00:00.000000",
+                "updated_at": "2026-02-18T10:00:00.000000"
+              }
+            ],
+            "count": 1
+          },
+          "message": "Retrieved 1 user(s) successfully"
+        }
+      }
+    },
+    
+    "15_get_user_by_id_success": {
+      "description": "Successfully get user by ID",
+      "request": {
+        "method": "GET",
+        "endpoint": "/users/1",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 1,
+            "name": "Admin User",
+            "email": "admin@example.com",
+            "age": 30,
+            "role": "admin",
+            "created_at": "2026-02-18T10:00:00.000000",
+            "updated_at": "2026-02-18T10:00:00.000000"
+          },
+          "message": "User retrieved successfully"
+        }
+      }
+    },
+    
+    "16_get_user_invalid_id": {
+      "description": "Get user with invalid ID format",
+      "request": {
+        "method": "GET",
+        "endpoint": "/users/abc",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 400,
+        "body": {
+          "status": "error",
+          "error_code": "INVALID_USER_ID",
+          "message": "User ID must be a valid integer"
+        }
+      }
+    },
+    
+    "17_get_user_not_found": {
+      "description": "Get non-existent user",
+      "request": {
+        "method": "GET",
+        "endpoint": "/users/999",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 404,
+        "body": {
+          "status": "error",
+          "error_code": "USER_NOT_FOUND",
+          "message": "User with ID 999 not found"
+        }
+      }
+    },
+    
+    "18_update_user_success": {
+      "description": "Successfully update user",
+      "request": {
+        "method": "PUT",
+        "endpoint": "/users/2",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "John Updated",
+          "age": 26
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 2,
+            "name": "John Updated",
+            "email": "john@example.com",
+            "age": 26,
+            "role": "user",
+            "created_at": "2026-02-18T10:00:00.000000",
+            "updated_at": "2026-02-18T11:00:00.000000"
+          },
+          "message": "User updated successfully"
+        }
+      }
+    },
+    
+    "19_update_user_not_found": {
+      "description": "Update non-existent user",
+      "request": {
+        "method": "PUT",
+        "endpoint": "/users/999",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Updated Name"
+        }
+      },
+      "response": {
+        "status_code": 404,
+        "body": {
+          "status": "error",
+          "error_code": "USER_NOT_FOUND",
+          "message": "User with ID 999 not found"
+        }
+      }
+    },
+    
+    "20_update_user_duplicate_email": {
+      "description": "Update user with existing email",
+      "request": {
+        "method": "PUT",
+        "endpoint": "/users/2",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "email": "admin@example.com"
+        }
+      },
+      "response": {
+        "status_code": 409,
+        "body": {
+          "status": "error",
+          "error_code": "DUPLICATE_EMAIL",
+          "message": "Email already exists. Please use a different email."
+        }
+      }
+    },
+    
+    "21_delete_user_success_admin": {
+      "description": "Successfully delete user as admin",
+      "request": {
+        "method": "DELETE",
+        "endpoint": "/users/2",
+        "headers": {
+          "Authorization": "Bearer {admin_token}"
+        },
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 2,
+            "name": "John Doe",
+            "email": "john@example.com",
+            "age": 25,
+            "role": "user",
+            "created_at": "2026-02-18T10:00:00.000000",
+            "updated_at": "2026-02-18T10:00:00.000000"
+          },
+          "message": "User deleted successfully"
+        }
+      }
+    },
+    
+    "22_delete_user_forbidden": {
+      "description": "Delete user as non-admin (forbidden)",
+      "request": {
+        "method": "DELETE",
+        "endpoint": "/users/1",
+        "headers": {
+          "Authorization": "Bearer {user_token}"
+        },
+        "body": null
+      },
+      "response": {
+        "status_code": 403,
+        "body": {
+          "status": "error",
+          "error_code": "FORBIDDEN",
+          "message": "Admin access required. You do not have permission to perform this action."
+        }
+      }
+    },
+    
+    "23_delete_user_not_found": {
+      "description": "Delete non-existent user",
+      "request": {
+        "method": "DELETE",
+        "endpoint": "/users/999",
+        "headers": {
+          "Authorization": "Bearer {admin_token}"
+        },
+        "body": null
+      },
+      "response": {
+        "status_code": 404,
+        "body": {
+          "status": "error",
+          "error_code": "USER_NOT_FOUND",
+          "message": "User with ID 999 not found"
+        }
+      }
+    },
+    
+    "24_delete_user_no_token": {
+      "description": "Delete user without token",
+      "request": {
+        "method": "DELETE",
+        "endpoint": "/users/2",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 401,
+        "body": {
+          "status": "error",
+          "error_code": "MISSING_TOKEN",
+          "message": "Authorization token is missing. Please include a valid token in the request."
+        }
+      }
+    },
+    
+    "25_simulate_error": {
+      "description": "Simulate internal server error",
+      "request": {
+        "method": "GET",
+        "endpoint": "/error",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 500,
+        "body": {
+          "status": "error",
+          "error_code": "INTERNAL_SERVER_ERROR",
+          "message": "Internal server error occurred"
+        }
+      }
+    },
+    
+    "26_reset_data": {
+      "description": "Reset data store to initial state",
+      "request": {
+        "method": "POST",
+        "endpoint": "/reset",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "status": "success",
+          "message": "Data store reset to initial state successfully"
+        }
+      }
+    },
+    
+    "27_method_not_allowed": {
+      "description": "Use invalid HTTP method",
+      "request": {
+        "method": "PATCH",
+        "endpoint": "/users/1",
+        "headers": {},
+        "body": null
+      },
+      "response": {
+        "status_code": 405,
+        "body": {
+          "status": "error",
+          "error_code": "METHOD_NOT_ALLOWED",
+          "message": "Method PATCH not allowed for this endpoint"
+        }
+      }
+    },
+    
+    "28_boundary_test_age_18": {
+      "description": "Create user with age exactly 18 (boundary test)",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Young Adult",
+          "email": "youngadult@example.com",
+          "age": 18
+        }
+      },
+      "response": {
+        "status_code": 201,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 3,
+            "name": "Young Adult",
+            "email": "youngadult@example.com",
+            "age": 18,
+            "role": "user",
+            "created_at": "2026-02-18T10:30:00.000000",
+            "updated_at": "2026-02-18T10:30:00.000000"
+          },
+          "message": "User created successfully"
+        }
+      }
+    },
+    
+    "29_boundary_test_name_3_chars": {
+      "description": "Create user with name exactly 3 characters (boundary test)",
+      "request": {
+        "method": "POST",
+        "endpoint": "/users",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {token}"
+        },
+        "body": {
+          "name": "Tim",
+          "email": "tim@example.com",
+          "age": 25
+        }
+      },
+      "response": {
+        "status_code": 201,
+        "body": {
+          "status": "success",
+          "data": {
+            "id": 4,
+            "name": "Tim",
+            "email": "tim@example.com",
+            "age": 25,
+            "role": "user",
+            "created_at": "2026-02-18T10:30:00.000000",
+            "updated_at": "2026-02-18T10:30:00.000000"
+          },
+          "message": "User created successfully"
+        }
+      }
+    }
+  },
+  
+  "test_workflow": {
+    "description": "Recommended testing workflow",
+    "steps": [
+      "1. Health Check - GET /health",
+      "2. Login as Admin - POST /login with admin@example.com",
+      "3. Save admin token for later use",
+      "4. Login as User - POST /login with john@example.com",
+      "5. Save user token for later use",
+      "6. Get All Users - GET /users",
+      "7. Create User - POST /users (with admin token)",
+      "8. Get Specific User - GET /users/{id}",
+      "9. Update User - PUT /users/{id} (with admin token)",
+      "10. Try Delete as User - DELETE /users/{id} (with user token - should fail with 403)",
+      "11. Delete User as Admin - DELETE /users/{id} (with admin token - should succeed)",
+      "12. Reset Data - POST /reset"
+    ]
+  },
+  
+  "curl_examples": {
+    "description": "Example cURL commands for testing",
+    "commands": {
+      "health_check": "curl -X GET http://127.0.0.1:5000/health",
+      "login": "curl -X POST http://127.0.0.1:5000/login -H \"Content-Type: application/json\" -d \"{\\\"email\\\": \\\"admin@example.com\\\"}\"",
+      "get_users": "curl -X GET http://127.0.0.1:5000/users",
+      "create_user": "curl -X POST http://127.0.0.1:5000/users -H \"Content-Type: application/json\" -H \"Authorization: Bearer YOUR_TOKEN\" -d \"{\\\"name\\\": \\\"Test User\\\", \\\"email\\\": \\\"test@example.com\\\", \\\"age\\\": 25}\"",
+      "get_user": "curl -X GET http://127.0.0.1:5000/users/1",
+      "update_user": "curl -X PUT http://127.0.0.1:5000/users/1 -H \"Content-Type: application/json\" -H \"Authorization: Bearer YOUR_TOKEN\" -d \"{\\\"name\\\": \\\"Updated Name\\\"}\"",
+      "delete_user": "curl -X DELETE http://127.0.0.1:5000/users/1 -H \"Authorization: Bearer YOUR_ADMIN_TOKEN\"",
+      "reset": "curl -X POST http://127.0.0.1:5000/reset"
+    }
+  }
+}
